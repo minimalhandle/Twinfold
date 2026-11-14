@@ -1,0 +1,200 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Twinfold</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="logo.svg" alt="" width="28" height="28">
+        <span>Twinfold</span>
+      </div>
+      <button id="newPair" class="btn primary block" type="button">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 3v10M3 8h10"/></svg>
+        New folder pair
+      </button>
+      <nav id="pairList" class="pair-list" aria-label="Folder pairs"></nav>
+      <div class="sidebar-foot">
+        <button id="runAll" class="btn block" type="button">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M5 3.5v9l7-4.5z"/></svg>
+          Run all active pairs
+        </button>
+        <div class="foot-links">
+          <button id="openSettings" class="link-btn" type="button">Settings</button>
+          <span aria-hidden="true">·</span>
+          <button id="openLog" class="link-btn" type="button">Open log</button>
+        </div>
+      </div>
+    </aside>
+    <main id="main" class="main" tabindex="-1"></main>
+  </div>
+
+  <dialog id="pairDialog" class="sheet">
+    <form id="pairForm" method="dialog">
+      <header class="sheet-head">
+        <h2 id="pairDialogTitle">New folder pair</h2>
+        <button class="icon-btn" value="cancel" formnovalidate aria-label="Close">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </header>
+      <div class="sheet-body">
+        <label class="field">
+          <span>Name</span>
+          <input name="name" required maxlength="80" placeholder="e.g. Photos backup" autocomplete="off">
+        </label>
+        <div class="field">
+          <span>Left folder</span>
+          <div class="path-input">
+            <input name="left" required placeholder="C:\Users\you\Pictures" autocomplete="off" spellcheck="false">
+            <button class="btn" type="button" data-browse="left">Browse…</button>
+          </div>
+        </div>
+        <div class="field">
+          <span>Right folder</span>
+          <div class="path-input">
+            <input name="right" required placeholder="E:\Backup\Pictures" autocomplete="off" spellcheck="false">
+            <button class="btn" type="button" data-browse="right">Browse…</button>
+          </div>
+        </div>
+        <fieldset class="modes">
+          <legend>What should happen</legend>
+          <label class="mode-card">
+            <input type="radio" name="mode" value="synchronize" checked>
+            <span class="mode-glyph">⇄</span>
+            <strong>Synchronize</strong>
+            <small>New, changed, renamed and deleted files go both ways. Both folders end up the same.</small>
+          </label>
+          <label class="mode-card">
+            <input type="radio" name="mode" value="echo">
+            <span class="mode-glyph">→</span>
+            <strong>Echo</strong>
+            <small>Left to right, including renames and deletes. The right becomes a mirror of the left.</small>
+          </label>
+          <label class="mode-card">
+            <input type="radio" name="mode" value="contribute">
+            <span class="mode-glyph">⇢</span>
+            <strong>Contribute</strong>
+            <small>Left to right, including renames, but nothing is ever deleted on the right.</small>
+          </label>
+        </fieldset>
+        <details class="advanced" id="scheduleSection">
+          <summary>Schedule <span id="scheduleSummary" class="summary-note"></span></summary>
+          <label class="toggle"><input type="checkbox" name="sched_enabled"> Run this pair automatically</label>
+          <div id="schedFields" class="sched-fields">
+            <div class="sched-row">
+              <label class="field">
+                <span>Repeat</span>
+                <select name="sched_repeat">
+                  <option value="daily">Every day</option>
+                  <option value="weekly">On certain days</option>
+                  <option value="hourly">Every few hours</option>
+                  <option value="logon">When I sign in to Windows</option>
+                </select>
+              </label>
+              <label class="field" data-for="hourly">
+                <span>Every</span>
+                <select name="sched_every">
+                  <option value="1">1 hour</option><option value="2">2 hours</option><option value="3">3 hours</option>
+                  <option value="4">4 hours</option><option value="6">6 hours</option><option value="8">8 hours</option>
+                  <option value="12">12 hours</option>
+                </select>
+              </label>
+              <label class="field" data-for="daily weekly hourly">
+                <span data-label-hourly="Starting at">At</span>
+                <input type="time" name="sched_time" value="02:00">
+              </label>
+            </div>
+            <div class="days" data-for="weekly" role="group" aria-label="Days">
+              <label><input type="checkbox" name="sched_day" value="1"><span>Mon</span></label>
+              <label><input type="checkbox" name="sched_day" value="2"><span>Tue</span></label>
+              <label><input type="checkbox" name="sched_day" value="3"><span>Wed</span></label>
+              <label><input type="checkbox" name="sched_day" value="4"><span>Thu</span></label>
+              <label><input type="checkbox" name="sched_day" value="5"><span>Fri</span></label>
+              <label><input type="checkbox" name="sched_day" value="6"><span>Sat</span></label>
+              <label><input type="checkbox" name="sched_day" value="0"><span>Sun</span></label>
+            </div>
+            <label class="toggle" data-for="daily weekly hourly"><input type="checkbox" name="sched_wake"> Wake the PC from sleep to run</label>
+            <p class="hint">Runs through Windows Task Scheduler, so it works even when Twinfold is closed. If the PC is off at that time, it runs as soon as it's back on.</p>
+          </div>
+        </details>
+        <details class="advanced">
+          <summary>Filters and options</summary>
+          <div class="grid2">
+            <label class="field">
+              <span>Only include</span>
+              <textarea name="include" rows="3" placeholder="All files&#10;(one pattern per line, e.g. *.jpg)" spellcheck="false"></textarea>
+            </label>
+            <label class="field">
+              <span>Exclude</span>
+              <textarea name="exclude" rows="3" placeholder="e.g.&#10;*.tmp&#10;node_modules" spellcheck="false"></textarea>
+            </label>
+          </div>
+          <p class="hint">A pattern without a slash matches a file or folder name anywhere. With a slash, it matches the path from the folder's top, e.g. <code>Raw/**/*.cr3</code>.</p>
+          <div class="checks">
+            <label><input type="checkbox" name="skip_hidden"> Skip hidden files</label>
+            <label><input type="checkbox" name="skip_system"> Skip system files</label>
+            <label><input type="checkbox" name="skip_read_only"> Skip read-only files</label>
+            <label><input type="checkbox" name="compare_contents"> Compare file contents (slower, catches edits that kept the same date)</label>
+            <label><input type="checkbox" name="use_recycle_bin"> Move deleted files to the Recycle Bin</label>
+            <label><input type="checkbox" name="active"> Include in “Run all active pairs”</label>
+          </div>
+        </details>
+        <p id="pairError" class="form-error" role="alert" hidden></p>
+      </div>
+      <footer class="sheet-foot">
+        <button class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button id="pairSave" class="btn primary" value="save">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="settingsDialog" class="sheet small">
+    <form id="settingsForm" method="dialog">
+      <header class="sheet-head">
+        <h2>Settings</h2>
+        <button class="icon-btn" value="cancel" formnovalidate aria-label="Close">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8"/></svg>
+        </button>
+      </header>
+      <div class="sheet-body">
+        <label class="setting">
+          <input type="checkbox" name="close_to_tray">
+          <span><b>Close to the notification area</b><small>Closing the window keeps Twinfold running next to the clock. Use Quit from its icon menu to exit.</small></span>
+        </label>
+        <label class="setting">
+          <input type="checkbox" name="start_with_windows">
+          <span><b>Start with Windows</b><small>Opens Twinfold in the notification area when you sign in.</small></span>
+        </label>
+        <p class="hint">Scheduled pairs don't need either of these: Windows Task Scheduler starts them even when Twinfold is closed.</p>
+        <p id="settingsError" class="form-error" role="alert" hidden></p>
+      </div>
+      <footer class="sheet-foot">
+        <button class="btn" value="cancel" formnovalidate>Cancel</button>
+        <button class="btn primary" value="save">Save</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <dialog id="confirmDialog" class="sheet small">
+    <form method="dialog">
+      <div class="sheet-body">
+        <h2 id="confirmTitle"></h2>
+        <p id="confirmText"></p>
+      </div>
+      <footer class="sheet-foot">
+        <button class="btn" value="no">Cancel</button>
+        <button id="confirmYes" class="btn danger" value="yes">OK</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="mock.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

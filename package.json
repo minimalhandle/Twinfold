@@ -1,0 +1,16 @@
+{
+  "name": "twinfold",
+  "private": true,
+  "license": "MIT",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build --no-bundle",
+    "package": "tauri build",
+    "icons": "tauri icon icon.svg -o src-tauri/icons",
+    "test": "cargo test -p twinfold-engine"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

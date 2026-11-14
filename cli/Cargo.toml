@@ -1,0 +1,9 @@
+[package]
+name = "twinfold-cli"
+version = "0.1.0"
+description = "Run Twinfold folder pairs from a script or Task Scheduler"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+twinfold-engine = { path = "../engine" }

@@ -1,0 +1,22 @@
+[package]
+name = "twinfold-engine"
+version = "0.1.0"
+description = "Folder-pair sync engine: Synchronize, Echo and Contribute"
+edition = "2021"
+license = "MIT"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Include/exclude filters ("*.tmp", "node_modules", "photos/**/*.raw").
+globset = "0.4"
+# "Check file contents" option.
+blake3 = "1"
+# Copies keep the source's modified time.
+filetime = "0.2"
+# "Move deleted files to the Recycle Bin" option.
+trash = "5"
+chrono = { version = "0.4", default-features = false, features = ["clock", "std"] }
+
+[dev-dependencies]
+tempfile = "3"
